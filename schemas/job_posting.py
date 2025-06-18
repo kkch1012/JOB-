@@ -5,7 +5,8 @@ from typing import Optional
 class JobPostingResponse(BaseModel):
     id: int
     title: str
-    employment_type: str
+    employment_type: Optional[str]  
+    applicant_type: str             
     job_position: str
     posted_date: date
     deadline: date
@@ -17,3 +18,16 @@ class JobPostingResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class JobPostingCreate(BaseModel):
+    title: str
+    employment_type: Optional[str] = None  
+    applicant_type: str
+    company_id: int
+    job_position: str
+    posted_date: date
+    deadline: date
+    main_tasks: Optional[str] = None
+    qualifications: Optional[str] = None
+    preferences: Optional[str] = None
+    tech_stack: Optional[str] = None
