@@ -14,7 +14,7 @@ class UserSkillResponse(BaseModel):
 class UserCertificateResponse(BaseModel):
     id: int
     certificate_id: int
-    certificate_name: Optional[str]  
+    certificate_name: Optional[str]
     acquired_date: date
 
     class Config:
@@ -26,21 +26,25 @@ class ResumeBase(BaseModel):
     major: Optional[str] = None
     gpa: Optional[float] = None
     education_status: Optional[str] = None
-    degree: Optional[str] = None
+    degree: str
     language_score: Optional[str] = None
+    experience: Optional[str] = None
+
+class ResumeCertificateInput(BaseModel):
+    certificate_id: int
+    acquired_date: date
 
 class ResumeSkillInput(BaseModel):
     skill_id: int
     proficiency: Optional[str] = None
-    
+
 class ResumeCreate(ResumeBase):
     skills: Optional[List[ResumeSkillInput]] = None
-    certificate_ids: Optional[List[int]] = None
+    certificates: Optional[List[ResumeCertificateInput]] = None 
 
 class ResumeUpdate(ResumeBase):
     skills: Optional[List[ResumeSkillInput]] = None
-    certificate_ids: Optional[List[int]] = None
-
+    certificates: Optional[List[ResumeCertificateInput]] = None 
 
 class ResumeResponse(ResumeBase):
     id: int

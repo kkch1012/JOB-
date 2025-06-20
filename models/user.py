@@ -27,8 +27,8 @@ class UserProfile(Base):
     user_id = Column(Integer, ForeignKey('users.id'), unique=True, nullable=False)
 
     name = Column(String, nullable=False)        
-    gender = Column(String, nullable=True)        
-    birth_date = Column(Date, nullable=True)      
-    phone_number = Column(String, nullable=True)  
+    gender = Column(String, nullable=False)        
+    birth_date = Column(Date, nullable=False)      
+    phone_number = Column(String, nullable=False)  
 
     user = relationship("User", back_populates="profile")

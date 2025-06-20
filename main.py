@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine, SessionLocal
 from models import job_required_skill, job_posting, job_postings_cleaned  # 필요한 모든 모델 import
 from services.job_analyzer import analyze_and_save_cleaned_postings
@@ -30,6 +31,14 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 데이터베이스 테이블 생성
 Base.metadata.create_all(bind=engine)

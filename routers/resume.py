@@ -44,13 +44,12 @@ def update_my_resume(
 
     if user.resume:
         resume = user.resume
-        for key, value in resume_data.dict(exclude_unset=True, exclude={"skills", "certificate_ids"}).items():
+        for key, value in resume_data.dict(exclude_unset=True, exclude={"skills", "certificates"}).items():
             setattr(resume, key, value)
     else:
-        resume = Resume(**resume_data.dict(exclude_unset=True, exclude={"skills", "certificate_ids"}), user_id=user.id)
+        resume = Resume(**resume_data.dict(exclude_unset=True, exclude={"skills", "certificates"}), user_id=user.id)
         db.add(resume)
         db.flush()
-
 
     if resume_data.skills is not None:
         db.query(UserSkill).filter(UserSkill.resume_id == resume.id).delete()
@@ -61,13 +60,13 @@ def update_my_resume(
                 proficiency=skill_input.proficiency
             ))
 
-    if resume_data.certificate_ids is not None:
+    if resume_data.certificates is not None:
         db.query(UserCertificate).filter(UserCertificate.resume_id == resume.id).delete()
-        for certificate_id in resume_data.certificate_ids:
+        for cert in resume_data.certificates:
             db.add(UserCertificate(
                 resume_id=resume.id,
-                certificate_id=certificate_id,
-                acquired_date=date.today()
+                certificate_id=cert.certificate_id,
+                acquired_date=cert.acquired_date
             ))
 
     db.commit()

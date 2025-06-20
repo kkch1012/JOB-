@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User, UserProfile
-from utils.schemas import UserCreate, LoginRequest, TokenResponse
+from utils.schemas import LoginRequest, TokenResponse
+from schemas.user import UserCreate
 from utils.dependencies import get_current_user
 from passlib.context import CryptContext
 from jose import jwt
-from datetime import datetime, timedelta, timezone  # ← 수정된 부분
+from datetime import datetime, timedelta, timezone 
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(tags=["Auth"])
@@ -28,18 +29,20 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-@router.post("/register", summary="회원가입 요청", description="이메일과 비밀번호를 이용하여 새 사용자를 등록합니다.")
+@router.post("/register", response_model=TokenResponse, summary="회원가입 요청", description="이메일과 비밀번호를 이용하여 새 사용자를 등록합니다.")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
+    # 비밀번호 해싱 및 유저 생성
     hashed = hash_password(user.password)
     new_user = User(email=user.email, hashed_password=hashed)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
+    # 프로필 생성
     new_profile = UserProfile(
         user_id=new_user.id,
         name=user.name,
@@ -50,7 +53,9 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.add(new_profile)
     db.commit()
 
-    return {"message": "User registered successfully"}
+    token = create_access_token({"email": new_user.email})
+    return {"access_token": token, "token_type": "bearer"}
+
 
 
 @router.delete("/delete", summary="계정 탈퇴", description="사용자의 계정을 삭제합니다.")
